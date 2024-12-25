@@ -123,17 +123,25 @@ class GooglePhotosExif extends Command {
       // Process the output file, setting the modified timestamp and/or EXIF metadata where necessary
       const photoTimeTaken = await readPhotoTakenTimeFromGoogleJson(mediaFile);
 
+      let r: string = "";
       if (photoTimeTaken) {
         if (mediaFile.supportsExif) {
           const hasExifDate = await doesFileHaveExifDate(mediaFile.mediaFilePath);
           if (!hasExifDate) {
-            await updateExifMetadata(mediaFile, photoTimeTaken, directories.error);
+            r = await updateExifMetadata(mediaFile, photoTimeTaken, directories.error);
             fileNamesWithEditedExif.push(mediaFile.outputFileName);
             this.log(`Wrote "DateTimeOriginal" EXIF metadata to: ${mediaFile.outputFileName}`);
           }
         }
-
-        await updateFileModificationDate(mediaFile.outputFilePath, photoTimeTaken);
+        console.log("modify data")
+        if(r !== "")
+        {
+          await updateFileModificationDate(r, photoTimeTaken);  
+        }
+        else
+        {
+          await updateFileModificationDate(mediaFile.outputFilePath, photoTimeTaken);
+        }
       }
     }
 
